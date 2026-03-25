@@ -7,14 +7,30 @@ app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
 
 def get_db_connection():
-    """환경변수 기반 DB 연결 생성"""
-    return Database(
-        host=os.getenv('DB_HOST', 'localhost'),
-        user=os.getenv('DB_USER', 'root'),
-        password=os.getenv('DB_PASSWORD', '123'),
-        database=os.getenv('DB_NAME', 'bmi_db'),
-        port=int(os.getenv('DB_PORT', '3306'))
-    )
+    """환경변수 기반 DB 연결 생성 (Cloudtype 자동주입 변수명도 지원)"""
+    host = (os.getenv('DB_HOST')
+            or os.getenv('MARIADB_HOST')
+            or os.getenv('MYSQL_HOST')
+            or 'localhost')
+    user = (os.getenv('DB_USER')
+            or os.getenv('MARIADB_USER')
+            or os.getenv('MYSQL_USER')
+            or 'root')
+    password = (os.getenv('DB_PASSWORD')
+                or os.getenv('MARIADB_PASSWORD')
+                or os.getenv('MYSQL_PASSWORD')
+                or '123')
+    database = (os.getenv('DB_NAME')
+                or os.getenv('MARIADB_DATABASE')
+                or os.getenv('MYSQL_DATABASE')
+                or 'bmi_db')
+    port = int(os.getenv('DB_PORT')
+               or os.getenv('MARIADB_PORT')
+               or os.getenv('MYSQL_PORT')
+               or 3306)
+    print(f"[DB] connecting to {host}:{port} db={database} user={user}")
+    return Database(host=host, user=user, password=password,
+                    database=database, port=port)
 
 # 데이터베이스 초기화
 db = get_db_connection()
