@@ -1,0 +1,17 @@
+name: flaskexample
+app: python@3.10
+options:
+  env:
+    - name: FLASK_ENV
+      value: production
+    - name: DB_HOST
+      value: mariadb
+    - name: DB_PORT
+      value: "3306"
+  ports: 5000
+  start: gunicorn -b 0.0.0.0:5000 app:app
+  buildenv: []
+context:
+  git:
+    url: https://github.com/jechoi2026-00/FlaskExample.git
+  preset: python-flask
