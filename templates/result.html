@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI 계산 결과</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BMI 계산 결과</h1>
+            <p>당신의 건강 상태를 확인하세요</p>
+        </header>
+
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="nav-link">계산하기</a>
+            <a href="{{ url_for('history') }}" class="nav-link">히스토리</a>
+        </nav>
+
+        <main>
+            <div class="card">
+                <div class="result-container">
+                    <h2>계산 결과</h2>
+                    
+                    <div class="result-info">
+                        <div class="info-item">
+                            <label>체중:</label>
+                            <span class="value">{{ weight }} kg</span>
+                        </div>
+                        <div class="info-item">
+                            <label>신장:</label>
+                            <span class="value">{{ height }} cm</span>
+                        </div>
+                    </div>
+
+                    <div class="result-bmi">
+                        <div class="bmi-score status-{{ status }}">
+                            <div class="bmi-value">{{ bmi }}</div>
+                            <div class="bmi-unit">BMI</div>
+                        </div>
+                        <div class="status-box status-{{ status }}">
+                            <p class="status-text">{{ status }}</p>
+                            {% if status == "저체중" %}
+                                <p class="status-description">체중이 정상 범위보다 낮습니다.<br>건강한 식습관과 운동으로 체중을 증가시키세요.</p>
+                            {% elif status == "정상체중" %}
+                                <p class="status-description">축하합니다!<br>정상 체중을 유지하고 있습니다.</p>
+                            {% elif status == "과체중" %}
+                                <p class="status-description">체중이 정상 범위보다 높습니다.<br>건강한 식습관과 규칙적인 운동으로 체중을 관리하세요.</p>
+                            {% elif status == "비만" %}
+                                <p class="status-description">체중이 매우 높습니다.<br>전문가의 상담을 받고 체계적인 관리를 시작하세요.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">다시 계산하기</a>
+                        <a href="{{ url_for('history') }}" class="btn btn-secondary">히스토리 보기</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 BMI 계산기. 모든 권리 보유.</p>
+        </footer>
+    </div>
+</body>
+</html>

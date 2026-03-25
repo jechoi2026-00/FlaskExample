@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI 히스토리</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BMI 계산 히스토리</h1>
+            <p>이전 계산 기록을 확인하세요</p>
+        </header>
+
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="nav-link">계산하기</a>
+            <a href="{{ url_for('history') }}" class="nav-link active">히스토리</a>
+        </nav>
+
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card">
+                {% if results %}
+                    <h2>총 {{ results|length }}개의 기록</h2>
+                    <div class="table-wrapper">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>번호</th>
+                                    <th>체중 (kg)</th>
+                                    <th>신장 (cm)</th>
+                                    <th>BMI</th>
+                                    <th>상태</th>
+                                    <th>기록 시간</th>
+                                    <th>작업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                    <tr class="status-{{ result.status }}">
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ result.weight }}</td>
+                                        <td>{{ result.height }}</td>
+                                        <td><strong>{{ result.bmi }}</strong></td>
+                                        <td>
+                                            <span class="status-badge status-{{ result.status }}">
+                                                {{ result.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ result.created_at.strftime('%Y-%m-%d %H:%M') if result.created_at else 'N/A' }}</td>
+                                        <td>
+                                            <form method="POST" action="{{ url_for('delete_record', result_id=result.id) }}" style="display: inline;">
+                                                <button type="submit" class="btn-delete" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="no-data">
+                        <p>아직 계산 기록이 없습니다.</p>
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">첫 BMI 계산하기</a>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 BMI 계산기. 모든 권리 보유.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI 계산기</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>BMI 계산기</h1>
+            <p>당신의 건강 상태를 확인하세요</p>
+        </header>
+
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="nav-link active">계산하기</a>
+            <a href="{{ url_for('history') }}" class="nav-link">히스토리</a>
+        </nav>
+
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card">
+                <h2>체중과 신장을 입력하세요</h2>
+                <form method="POST" action="{{ url_for('calculate') }}" class="form">
+                    <div class="form-group">
+                        <label for="weight">체중 (kg)</label>
+                        <input 
+                            type="number" 
+                            id="weight" 
+                            name="weight" 
+                            placeholder="예: 70" 
+                            step="0.1"
+                            min="0"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="height">신장 (cm)</label>
+                        <input 
+                            type="number" 
+                            id="height" 
+                            name="height" 
+                            placeholder="예: 175" 
+                            step="0.1"
+                            min="0"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">BMI 계산</button>
+                        <button type="reset" class="btn btn-secondary">초기화</button>
+                    </div>
+                </form>
+
+                <div class="info-section">
+                    <h3>BMI 분류 기준</h3>
+                    <table class="info-table">
+                        <tr>
+                            <td class="underweight">저체중</td>
+                            <td>BMI < 18.5</td>
+                        </tr>
+                        <tr>
+                            <td class="normal">정상체중</td>
+                            <td>18.5 ≤ BMI < 25</td>
+                        </tr>
+                        <tr>
+                            <td class="overweight">과체중</td>
+                            <td>25 ≤ BMI < 30</td>
+                        </tr>
+                        <tr>
+                            <td class="obese">비만</td>
+                            <td>BMI ≥ 30</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 BMI 계산기. 모든 권리 보유.</p>
+        </footer>
+    </div>
+
+    <script>
+        // 폼 유효성 검사
+        document.querySelector('.form').addEventListener('submit', function(e) {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+
+            if (weight <= 0 || height <= 0) {
+                e.preventDefault();
+                alert('체중과 신장은 0보다 커야 합니다.');
+            }
+        });
+    </script>
+</body>
+</html>
