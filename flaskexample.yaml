@@ -6,6 +6,12 @@ options:
       value: production
     - name: DB_HOST
       value: mariadb
+    - name: DB_USER
+      value: root
+    - name: DB_PASSWORD
+      value: "123"
+    - name: DB_NAME
+      value: bmi_db
     - name: DB_PORT
       value: "3306"
   ports: 5000

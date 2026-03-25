@@ -4,7 +4,7 @@ from datetime import datetime
 class Database:
     """데이터베이스 연결 및 관리 클래스"""
 
-    def __init__(self, host='localhost', user='root', password='', database='bmi_db', charset='utf8mb4'):
+    def __init__(self, host='localhost', user='root', password='123', database='bmi_db', charset='utf8mb4', port=3306):
         """
         데이터베이스 초기화
 
@@ -20,6 +20,7 @@ class Database:
         self.password = password
         self.database = database
         self.charset = charset
+        self.port = port
         self.connection = None
 
     def connect(self):
@@ -27,6 +28,7 @@ class Database:
         try:
             self.connection = pymysql.connect(
                 host=self.host,
+                port=self.port,
                 user=self.user,
                 password=self.password,
                 database=self.database,
@@ -35,8 +37,43 @@ class Database:
             )
             print("MariaDB 데이터베이스 연결 성공")
         except pymysql.Error as e:
-            print(f"MariaDB 데이터베이스 연결 실패: {e}")
-            raise
+            # Unknown database 에러면 DB를 생성한 뒤 재연결한다.
+            if e.args and e.args[0] == 1049:
+                self._create_database_if_not_exists()
+                self.connection = pymysql.connect(
+                    host=self.host,
+                    port=self.port,
+                    user=self.user,
+                    password=self.password,
+                    database=self.database,
+                    charset=self.charset,
+                    cursorclass=pymysql.cursors.DictCursor
+                )
+                print("MariaDB 데이터베이스 연결 성공")
+            else:
+                print(f"MariaDB 데이터베이스 연결 실패: {e}")
+                raise
+
+    def _create_database_if_not_exists(self):
+        """데이터베이스가 없으면 생성"""
+        bootstrap_conn = pymysql.connect(
+            host=self.host,
+            port=self.port,
+            user=self.user,
+            password=self.password,
+            charset=self.charset,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        try:
+            with bootstrap_conn.cursor() as cursor:
+                cursor.execute(
+                    f"CREATE DATABASE IF NOT EXISTS `{self.database}` "
+                    "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+                )
+            bootstrap_conn.commit()
+            print(f"데이터베이스 생성 완료: {self.database}")
+        finally:
+            bootstrap_conn.close()
 
     def disconnect(self):
         """데이터베이스 연결 종료"""

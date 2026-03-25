@@ -1,12 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, flash 
+import os
 from bmi import BMI
 from db import Database
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
 
+def get_db_connection():
+    """환경변수 기반 DB 연결 생성"""
+    return Database(
+        host=os.getenv('DB_HOST', 'localhost'),
+        user=os.getenv('DB_USER', 'root'),
+        password=os.getenv('DB_PASSWORD', '123'),
+        database=os.getenv('DB_NAME', 'bmi_db'),
+        port=int(os.getenv('DB_PORT', '3306'))
+    )
+
 # 데이터베이스 초기화
-db = Database(host='localhost', user='root', password='', database='bmi_db')
+db = get_db_connection()
 
 def init_db():
     """데이터베이스 초기화"""
@@ -38,7 +49,7 @@ def calculate():
         result = bmi_calculator.get_full_result()
         
         # 데이터베이스에 저장
-        db_connection = Database(host='localhost', user='root', password='', database='bmi_db')
+        db_connection = get_db_connection()
         db_connection.connect()
         result_id = db_connection.insert_bmi_result(
             result['weight'],
@@ -70,7 +81,7 @@ def calculate():
 def history():
     """히스토리 페이지"""
     try:
-        db_connection = Database(host='localhost', user='root', password='', database='bmi_db')
+        db_connection = get_db_connection()
         db_connection.connect()
         results = db_connection.get_all_results()
         db_connection.disconnect()
@@ -83,7 +94,7 @@ def history():
 def delete_record(result_id):
     """기록 삭제"""
     try:
-        db_connection = Database(host='localhost', user='root', password='', database='bmi_db')
+        db_connection = get_db_connection()
         db_connection.connect()
         if db_connection.delete_result(result_id):
             flash('기록이 삭제되었습니다.', 'success')
